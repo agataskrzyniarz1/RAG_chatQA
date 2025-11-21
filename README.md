@@ -59,12 +59,13 @@ The final stage produces two files in `data/final/` that are ready to be consume
 
 #### Folder organization
 
+```
 data/
 │
 ├── raw/             # Original LaTeX source (modele.tex, page-de-garde.tex, documentation.tex, biblio.bib)
 ├── intermediate/    # Cleaned intermediate file (cleaned_ipa.tex)
 └── final/           # Final RAG-ready files (main.md, biblio.bib)
-
+```
 
 ### Requirements
 
@@ -98,4 +99,4 @@ python prepare_rag_source.py
 
 This repository does not include my full thesis as it is not **yet** published, so the raw content is intentionally omitted for copyright reasons.
 
-The `data/` directory for now only contains an empty folder structure.
+The `data/` directory will be uploaded as soon as the thesis is published.

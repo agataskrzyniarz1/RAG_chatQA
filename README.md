@@ -20,24 +20,19 @@ At this stage, the project includes:
 
 ### Tools and Components Used
 
-#### LaTeX Preprocessing:
+**LaTeX Preprocessing:**
 - Python (custom macro replacement, TIPA → IPA conversion)
 - Pandoc (LaTeX → Markdown conversion)
 
-#### Document Structuring and Chunking:
-- LangChain (MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter)
+**Document Structuring and Chunking:** LangChain (MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter)
 
-#### Embeddings:
-- OpenAI Embeddings API
+**Embeddings:** OpenAI Embeddings API
 
-#### Vector Store:
-- ChromaDB
+**Vector Store:** ChromaDB
 
-#### Retrieval and Ranking:
-- Chroma similarity search with relevance scoring
+**Retrieval and Ranking:** Chroma similarity search
 
-#### Generation (Answering Questions):
-- OpenAI LLM (`gpt-4o-mini`)
+**Generation (Answering Questions):** OpenAI LLM (`gpt-4o-mini`)
 
 ## Part 1: Preparing Thesis Documents for Retrieval-Augmented Generation
 

@@ -9,9 +9,9 @@ This repository contains a Retrieval-Augmented Generation (RAG) project — an i
 At this stage, the project includes:
 - `prepare_rag_source.py` that takes the raw LaTeX thesis and prepares it for use in a RAG pipeline.
 - `main.py` with:
- - document chunking,
- - vectorization and retrieval,
- - LLM answer generation.
+  - document chunking,
+  - vectorization and retrieval,
+  - LLM answer generation.
 
 **Next steps:**
 - adding a proper source citing from `biblio.bib`,

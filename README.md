@@ -163,6 +163,7 @@ Alternatively, if the variable is not set, the script will ask you to enter the 
 1. Prepare thesis source:
 
 ```
+cd scr
 python prepare_rag_source.py
 ```
 

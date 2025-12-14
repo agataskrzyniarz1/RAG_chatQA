@@ -1,6 +1,5 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 from langchain_core.documents import Document
-from langchain_community.vectorstores import Chroma
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from openai import OpenAI
@@ -14,22 +13,29 @@ from typing import List
 import argparse
 import re
 
+
 # Paths
 main_path = "../data/final/main.md"
 bib_path = "../data/final/biblio.bib"
 chroma_path = "../chroma"
 
-CITATION_REGEX = re.compile(r"\[@([A-Za-z0-9:\-_]+)\]")
+# Regex
+CITATION_BLOCK_REGEX = re.compile(r"\[@([^\]]+)\]")
+CITATION_KEY_REGEX = re.compile(r"@([^\s;,\]]+)")
 
-# === Load and concatenate files ===
-
-def load_file(path: str) -> str:
-    with open(path, "r", encoding="utf-8") as f:
-        return f.read()
+# === Load corpus ===
 
 def load_corpus(main_path: str) -> str:
     """Load main.md as corpus."""
-    return load_file(main_path)
+    with open(main_path, "r", encoding="utf-8") as f:
+        return f.read()
+
+# == Extract front matter (front page) - not embedding-friendly ==    
+
+def extract_front_matter(corpus_text: str) -> str:
+    match = re.search(r"---\s*(.*?)\s*## Abstract", corpus_text, re.DOTALL)
+    return match.group(1) if match else ""
+
 
 # === Split by Markdown structure ===
 
@@ -71,7 +77,7 @@ def split_markdown(corpus_text: str) -> List[Document]:
 
 # === Recursive chunking with metadata (headers) ===
 
-def chunk_documents(structured_docs: List[Document], chunk_size: int = 1800, chunk_overlap: int = 200) -> List[Document]:
+def chunk_documents(structured_docs: List[Document], chunk_size: int = 2000, chunk_overlap: int = 200) -> List[Document]:
     """
     Split structured Documents into smaller chunks recursively.
     """
@@ -125,14 +131,18 @@ def create_vectorstore(chunks: List[Document], persist_dir: str = chroma_path) -
 # === Extract citation keys ===
 
 def extract_citation_keys(text: str) -> List[str]:
-    return list({m.group(1) for m in CITATION_REGEX.finditer(text)})
+    keys = []
+    for block in CITATION_BLOCK_REGEX.findall(text):
+        found = CITATION_KEY_REGEX.findall(block)
+        keys.extend(found)
+    return list(set(keys))
 
 
-# === Format bibliography entries ===
+# === Bibliography ===
 
 class PybtexFormatter:
     """
-    Formats citations from a .bib file in plain style (authors. title. publisher, year.)
+    Format citations from a .bib file in plain style (authors. title. publisher, year.)
     """
     def __init__(self, bib_path: str):
         self.bib_data = parse_file(bib_path)
@@ -154,19 +164,107 @@ class PybtexFormatter:
         return citations
     
 
+def get_author_year(formatter: PybtexFormatter, key: str):
+    if key not in formatter.bib_data.entries:
+        return None, None
+
+    entry = formatter.bib_data.entries[key]
+    authors = entry.persons.get("author", [])
+    if len(authors) == 0:
+        author = "Unknown"
+    else:
+        author = authors[0].last_names[0]
+
+    year = entry.fields.get("year", "n.d.")
+    return author, year
+
+def replace_citations_with_author_year(answer_text: str, formatter: PybtexFormatter):
+
+    def repl(match):
+        inside = match.group(1)
+
+        # Split by semicolon, comma, or whitespace
+        raw_parts = re.split(r'[;,\s]+', inside)
+
+        keys = []
+        for part in raw_parts:
+            if not part:
+                continue
+            key = part.lstrip('@').strip()
+            if key:
+                keys.append(key)
+
+        citations = []
+
+        for key in keys:
+            entry = formatter.bib_data.entries.get(key)
+            if entry is None:
+                citations.append("")
+                continue
+
+            # Extract authors
+            persons = entry.persons.get("author", [])
+            lastnames = [p.last_names[0] for p in persons] if persons else []
+
+            # Format author string
+            if len(lastnames) == 0:
+                author_str = "Unknown"
+            elif len(lastnames) == 1:
+                author_str = lastnames[0]
+            elif len(lastnames) == 2:
+                author_str = f"{lastnames[0]} and {lastnames[1]}"
+            else:
+                author_str = f"{lastnames[0]} et al."
+
+            # Extract year
+            year = entry.fields.get("year", "n.d.")
+
+            citations.append(f"({author_str}, {year})")
+
+        if not citations:
+            return match.group(0)
+
+        # If multiple citations → "(A, Y) (B, Y)"
+        return " ".join(citations)
+
+    # Replace all [@...] blocks
+    return CITATION_BLOCK_REGEX.sub(repl, answer_text)
+
+
+# === References ===
+
 def extract_used_sources(answer_text: str, formatter: PybtexFormatter) -> List[str]:
     """
-    It analyzes the LLM response and returns a list of citations whose authors appear in the text.
-    The match is case-insensitive and only as a separate word.
+    Extract used references by matching (Author, Year),
+    using only the first author's last name from both the citation and BibTeX.
     """
-    used_keys = set()
-    bib_data = formatter.bib_data
 
-    for key, entry in bib_data.entries.items():
-        for person in entry.persons.get("author", []):
-            last_name = person.last_names[0]
-            pattern = r'\b' + re.escape(last_name) + r'\b'
-            if re.search(pattern, answer_text, flags=re.IGNORECASE):
+    # Match citations
+    citation_pattern = re.compile(r"\(([^,]+),\s*([0-9]{4}|n\.d\.)\)")
+    matches = citation_pattern.findall(answer_text)
+
+    used_keys = set()
+
+    for author_block, year in matches:
+
+        # Normalize year
+        year = year.strip()
+
+        # Extract first surname from the author block
+        first_author = author_block.split("and")[0].split("et al.")[0].strip()
+        first_author = first_author.lower()
+
+        # Search BibTeX for matching entry
+        for key, entry in formatter.bib_data.entries.items():
+            persons = entry.persons.get("author", [])
+            if not persons:
+                continue
+
+            # First author's last name from .bib
+            bib_lastname = persons[0].last_names[0].lower()
+            bib_year = entry.fields.get("year", "n.d.")
+
+            if bib_lastname == first_author and bib_year == year:
                 used_keys.add(key)
 
     return [formatter.format_entry(key) for key in used_keys]
@@ -180,81 +278,122 @@ def set_openai_api_key():
         os.environ["OPENAI_API_KEY"] = getpass.getpass("Enter API key for OpenAI: ")
 
 
-# === Main ===
+# === Global initialization ===
 
-def main():
-    set_openai_api_key()
+set_openai_api_key()
 
-    # Load corpus
-    corpus_text = load_corpus(main_path)
-    #print("Corpus loaded.")
+# Load corpus
+corpus_text = load_corpus(main_path)
+#print("Corpus loaded.")
 
-    # Load bibliography
-    formatter = PybtexFormatter(bib_path)
+# Load front matter
+front_matter = extract_front_matter(corpus_text)
+#print(front_matter)
 
-    # Split by Markdown
-    structured_docs = split_markdown(corpus_text)
-    #print(f"Structured blocks: {len(structured_docs)}")
+front_doc = Document(
+    page_content=(
+        "This is the title page and metadata of the thesis.\n"
+        + front_matter
+    ),
+    metadata={"header_path": "Front Matter > Title Page"}
+)
 
-    # Chunking
-    chunks = chunk_documents(structured_docs)
-    #print(f"Final chunks: {len(chunks)}")
+# Load bibliography
+formatter = PybtexFormatter(bib_path)
+#print(formatter.bib_data.entries.keys())
 
-    # Create vectorstore
-    db = create_vectorstore(chunks)
+# Split by Markdown
+structured_docs = split_markdown(corpus_text)
+structured_docs.insert(0, front_doc)
+#print(f"Structured blocks: {len(structured_docs)}")
 
-    # Inspect chunks
-    #for i, doc in enumerate(chunks[:20], start=1):
-    #    print(f"\n--- Chunk {i} ---")
-    #    print(doc.page_content)
+# Chunking
+chunks = chunk_documents(structured_docs)
+#print(f"Final chunks: {len(chunks)}")
 
-    # Create CLI
-    parser = argparse.ArgumentParser()
-    parser.add_argument("query_text", type=str, help="The question.")
-    args = parser.parse_args()
-    query_text = args.query_text
+# Create vectorstore
+db = create_vectorstore(chunks)
 
-    # Prepare the DB
-    embedding_function = OpenAIEmbeddings()
-    db = Chroma(persist_directory=chroma_path, embedding_function=embedding_function)
+# Inspect chunks
+#for i, doc in enumerate(chunks[:5], start=1):
+#    print(f"\n--- Chunk {i} ---")
+#    print(doc.page_content)
 
+# Prepare the DB
+embedding_function = OpenAIEmbeddings()
+db = Chroma(persist_directory=chroma_path, embedding_function=embedding_function)
+
+# == RAG function ==
+
+def get_rag_answer(question: str):
+    
     # Search the DB
-    results = db.similarity_search_with_relevance_scores(query_text, k=3)
-    if len(results) == 0 or results[0][1] < 0.5:
-        print(f"Unable to find matching results.")
-        return
+    results = db.similarity_search_with_relevance_scores(question, k=4)
+
+    if not results or results[0][1] < 0.5:
+        return "Unable to find relevant context in the thesis", []
     
-    context_text = "\n---\n".join([doc.page_content for doc, _score in results])
+    docs = [doc for doc, _score in results]
     
-    #print("\nContext:\n")
-    #print(context_text)
-    #print("\n---\n")
-    
+    context_text = "\n---\n".join(doc.page_content for doc in docs)
+
+    context_for_eval = list(doc.page_content for doc in docs)
+
     # Citation keys from retrieved context
-    found_keys = extract_citation_keys(context_text)
+    #found_keys = extract_citation_keys(context_text)
 
     # Prompt
-    PROMPT = (
-    "You are answering a question based strictly on the provided CONTEXT, which comes from an academic thesis. "
-    "Use inline citations in the form (Author, Year) ONLY when the context contains citation keys like [@tarone-2006]."
-    "Do NOT make up new sources. Do not hallucinate bibliography entries."
-    "If the question is not related to the CONTEXT, do NOT attempt to answer it; instead, clearly say "
-    "'This question is not related to the provided thesis context.'\n\n"
-    f"CONTEXT:\n{context_text}\n\n"
-    f"QUESTION:\n{query_text}\n\n"
-    "Provide a clear, concise answer:"
-)
+    PROMPT = f"""
+    You are answering a question based strictly on the provided CONTEXT, which comes from a master's thesis.
+    The CONTEXT may contain chapter or section headers; these headers are metadata only and must NOT be mentioned, paraphrased, or used as sources in your answer.
+
+    When citing, always use the original citation tags from the context (don't change their form).
+    Do NOT cite chapter titles, section names, or headers.
+    Use all citation tags that are relevant to your answer.
+    Do NOT invent new citation keys.
+    If the question is not related to the CONTEXT, do NOT attempt to answer it; instead, clearly say:
+    'This question is not related to the provided thesis context.'
+
+    CONTEXT:
+    
+    {context_text}
+
+    QUESTION:
+
+    {question}
+
+    Provide a clear answer:
+    """
 
     # Call the LLM
     client = OpenAI()
-
     response = client.responses.create(
         model="gpt-4o-mini",
-        input=query_text,
-        instructions=PROMPT
+        input=PROMPT
     )
+    raw_answer = response.output_text.strip()
 
-    answer = response.output_text.strip()
+    #print("\nRaw answer:\n")
+    #print(raw_answer)
+    #print("\n")
+
+    answer = replace_citations_with_author_year(raw_answer, formatter)
+    return answer, context_text, context_for_eval
+
+
+# === CLI ===
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("question", type=str, help="Question for the RAG system")
+    args = parser.parse_args()
+
+    answer, context, context_for_eval = get_rag_answer(args.question)
+
+    # Print the context
+    #print("\nContext:\n")
+    #print(context)
+    #print("\n---\n")
 
     # Print the answer
     print("Response:\n")
@@ -263,16 +402,7 @@ def main():
     # Print references if any
     sources = extract_used_sources(answer, formatter)
     if sources:
-        print("\nSources:\n")
+        print("\nReferences:\n")
         for s in sources:
             print(f"{s}")
             print()
-
-
-    #for i, doc in enumerate(structured_docs):
-    #    print(f"Doc {i}: {doc.metadata}")
-
-
-if __name__ == "__main__":
-    main()
-

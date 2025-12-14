@@ -55,7 +55,7 @@ def replace_external_macros(text):
         text = text.replace(macro, rep)
     return text
 
-
+# If "i" is before a vowel -> change for "j" (according to Polish pronunciation)
 def contextual_i_to_j(text):
     result = []
     for i, ch in enumerate(text):
@@ -119,7 +119,7 @@ def main():
     # Filenames
     input_tex = "modele.tex"
     cleaned_tex = "cleaned_ipa.tex"
-    output_md = "main.md"
+    output_md = "main_with_noise.md"
     bib = "biblio.bib"
 
     input_tex_path = os.path.join(raw_dir, input_tex)
@@ -146,7 +146,7 @@ def main():
     # Run Pandoc, output directly to final/
     run_pandoc(
         input_tex=cleaned_tex,
-        output_md=os.path.join(final_dir, output_md),
+        output_md=os.path.join(inter_dir, output_md),
         bibfile=bib,
         cwd=raw_dir
     )
@@ -156,7 +156,7 @@ def main():
 
     print("\nFiles generated:")
     print(f"- cleaned LaTeX:   {cleaned_path}")
-    print(f"- Markdown:        {os.path.join(final_dir, output_md)}")
+    print(f"- Markdown:        {os.path.join(inter_dir, output_md)}")
     print(f"- Bibliography:    {os.path.join(final_dir, bib)}")
 
 

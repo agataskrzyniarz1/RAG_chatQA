@@ -1,0 +1,278 @@
+[
+    {
+        "question": "What is the main focus of this master's thesis?",
+        "ground_truth": "This thesis investigates the performance of automatic tools in processing Polish interlanguage produced by adult learners from the VILLA project, who completed a route-giving task after 14 hours of instruction."
+    },
+    {
+        "question": "What are the two main objectives of this research?",
+        "ground_truth": "The two main objectives are:\n1. To analyze learner deviations in case inflection and pronunciation, revealing patterns such as overuse of the nominative, confusion between genitive, instrumental, and locative forms, and difficulties with retroflex consonants and nasal vowels.\n2. To evaluate Whisper, an end-to-end ASR system, on its ability to transcribe Polish interlanguage."
+    },
+    {
+        "question": "Who introduced the concept of interlanguage and in what year?",
+        "ground_truth": "The concept of interlanguage was introduced by Selinker (1972) to describe the linguistic system that emerges when an adult learns a second language."
+    },
+    {
+        "question": "What is interlanguage according to the thesis?",
+        "ground_truth": "Interlanguage refers to a transitional linguistic system developed by the learner to communicate in the target language, shaped by factors including the target language and the learner's native language (Tarone, 2006)."
+    },
+    {
+        "question": "To which language family does Polish belong?",
+        "ground_truth": "Polish belongs to the family of West Slavic languages (Bartnicka, 1990)."
+    },
+    {
+        "question": "How many letters does the Polish alphabet have?",
+        "ground_truth": "The Polish alphabet has 32 letters."
+    },
+    {
+        "question": "What are the seven grammatical cases in Polish?",
+        "ground_truth": "The seven grammatical cases in Polish are:\n1. Nominative (Nominativus)\n2. Genitive (Generativus)\n3. Dative (Dativus)\n4. Accusative (Accusativus)\n5. Instrumental (Instrumentalis)\n6. Locative (Locativus)\n7. Vocative (Vocativus)"
+    },
+    {
+        "question": "Which parts of speech are conjugated by cases in Polish?",
+        "ground_truth": "Parts of speech that are conjugated by cases in Polish are nouns, adjectives, numerals, and pronouns."
+    },
+    {
+        "question": "What does the VILLA project stand for?",
+        "ground_truth": "VILLA stands for \"Varieties of Initial Learners in Language Acquisition: Controlled classroom input and elementary forms of linguistic organisation.\""
+    },
+    {
+        "question": "Who conducted the VILLA project?",
+        "ground_truth": "The VILLA project was conducted by Dimroth et al. (2013)."
+    },
+    {
+        "question": "What were the five linguistic backgrounds of participants in the VILLA project?",
+        "ground_truth": "The five linguistic backgrounds of participants were Dutch, English, French, German, and Italian."
+    },
+    {
+        "question": "How many hours of Polish instruction did the VILLA project participants receive?",
+        "ground_truth": "The VILLA project participants received 14 hours of instruction in Polish as a foreign language."
+    },
+    {
+        "question": "What was the Route Direction task in the VILLA project?",
+        "ground_truth": "The Route Direction task required students to give directions from point A to point B using a map that included named streets and visual representations of places such as a hospital, school, restaurant, and store."
+    },
+    {
+        "question": "What were the two types of input provided to learner subgroups in the VILLA project?",
+        "ground_truth": "The two types of input were meaning-based input (focused on communication without meta-linguistic explanations) and form-based input (where learners were explicitly directed to notice morphological forms and rules)."
+    },
+    {
+        "question": "What is one of the more challenging aspects of learning Polish mentioned in the thesis?",
+        "ground_truth": "One of the more challenging aspects of learning Polish is its pronunciation, as the language contains phonemes not present in other widely spoken Western languages and features complex phoneme clusters."
+    },
+    {
+        "question": "What factors influence the choice of noun endings in Polish?",
+        "ground_truth": "The choice of endings is influenced by phonetic factors (such as whether the noun stem ends in a hard or soft consonant, or a vowel) as well as semantic factors (such as the category of animacy, inanimacy, and personal vs. non-personal reference within the masculine gender) (Bartnicka, 1990)."
+    },
+    {
+        "question": "What is Whisper?",
+        "ground_truth": "Whisper is a transformer encoder-decoder automatic speech recognition system trained on 680,000 hours of multilingual data, developed by OpenAI (Radford et al., 2022)."
+    },
+    {
+        "question": "What is a key challenge when using ASR systems for second language production?",
+        "ground_truth": "A key challenge is that learners' productions often exhibit variations that differ from those of native speakers, which standard ASR systems are not trained to recognize."
+    },
+    {
+        "question": "What is WER and how is it calculated?",
+        "ground_truth": "WER stands for Word Error Rate and is calculated based on the Levenshtein distance, counting the number of substitutions (S), deletions (D), and insertions (I) needed to transform the system output into the reference transcription."
+    },
+    {
+        "question": "What is CER?",
+        "ground_truth": "CER stands for Character Error Rate, which measures ASR performance at the character level rather than the word level."
+    },
+    {
+        "question": "Why is CER considered a better metric than WER for evaluating interlanguage transcription?",
+        "ground_truth": "CER provides a more fine-grained perspective because even partially correct transcriptions are rewarded for character-level similarity, and it better reflects the degree to which ASR output preserves traces of the learner's original production (K et al., 2024)."
+    },
+    {
+        "question": "What tool was used for morphosyntactic analysis in this study?",
+        "ground_truth": "The spaCy library was used for Polish morphosyntactic analysis, providing lemmatization, part-of-speech tagging, and morphological features including case information."
+    },
+    {
+        "question": "What annotation tool was used for transcribing voice recordings?",
+        "ground_truth": "ELAN was used for annotating audio and video recordings, and files were saved in .eaf format."
+    },
+    {
+        "question": "What are the two parallel tiers included in each transcription file?",
+        "ground_truth": "The two parallel tiers are:\n- *STU: manual transcriptions that accurately reflect what the learner said\n- %pol: corrected versions in standard Polish, representing the intended meaning of the learner's utterance"
+    },
+    {
+        "question": "How many recordings were included in the learner corpus from each country?",
+        "ground_truth": "| Country | Number of wav/eaf/txt files | Total duration of recordings |\n|---------|----------------------------|-----------------------------|\n| France | 17 | 23 minutes 32 seconds |\n| Italy | 17 | 26 minutes 39 seconds |\n| Netherlands | 18 | 28 minutes 34 seconds |\n| England | 17 | 29 minutes 34 seconds |\n| Germany | 20 | 30 minutes 42 seconds |"
+    },
+    {
+        "question": "What was the total duration of all learner recordings in the corpus?",
+        "ground_truth": "The total duration of all learner recordings was 2 hours and 19 minutes (89 files total)."
+    },
+    {
+        "question": "Why were pronunciation errors indicated through Polish spelling rather than IPA?",
+        "ground_truth": "The reasons were:\n1. Manual transcription is time-consuming and annotation rules should be simple and intuitive\n2. Full phonemic transcription would have substantially reduced corpus size\n3. Standard orthographic transcription facilitates processing by automated tools like lemmatization and POS tagging\n4. The corpus is intended for further work by researchers who may not be phoneticians"
+    },
+    {
+        "question": "What percentage of words detected as belonging to another language were actually erroneous forms from learners' Polish interlanguage?",
+        "ground_truth": "The majority (66%) of the words detected as belonging to another language were in fact erroneous forms from the learners' Polish interlanguage."
+    },
+    {
+        "question": "What Python libraries were used in the implementation of this thesis?",
+        "ground_truth": "The Python libraries used included spaCy for morphosyntactic analysis, pandas for data manipulation, fuzzywuzzy (Levenshtein distance) for fuzzy string matching, Epitran for grapheme-to-phoneme transcription, langdetect for language detecting, matplotlib and seaborn for visualization, JiWER for calculating WER and CER, as well as json, xml.etree, and csv for structured data processing and file management."
+    },
+    {
+        "question": "What percentage of aligned word pairs were identified as erroneous in the learner corpus?",
+        "ground_truth": "Out of 3,466 aligned pairs, 1,352 were identified as erroneous, accounting for 39.01% of the data."
+    },
+    {
+        "question": "What percentage of manual transcription words were successfully aligned with their correct counterparts?",
+        "ground_truth": "Out of 4,178 words in the manual transcriptions, 3,466 were successfully aligned with their correct counterparts, accounting for 82.96% of the manual transcription corpus."
+    },
+    {
+        "question": "What was spaCy's accuracy in case detection for incorrect learner forms versus corrected forms?",
+        "ground_truth": "SpaCy achieved 60% accuracy on the incorrect forms and 75% accuracy on the corrected forms."
+    },
+    {
+        "question": "What was spaCy's accuracy in case detection for native Polish speakers?",
+        "ground_truth": "The overall accuracy for native Polish speech was only 67%, which falls between the scores observed for learner errors and corrected forms."
+    },
+    {
+        "question": "Which grammatical case was most overused by learners according to the analysis?",
+        "ground_truth": "The nominative case was most overused by learners, with 941.67% more produced cases than expected, as the nominative is the default case in Polish and learners overgeneralize when lacking explicit declension knowledge."
+    },
+    {
+        "question": "Which grammatical cases showed the highest reduction between expected and produced forms?",
+        "ground_truth": "The genitive showed a 95.28% reduction and the instrumental showed an 88.14% reduction between expected and produced forms."
+    },
+    {
+        "question": "What percentage of accusative and locative errors involved learners incorrectly using the nominative?",
+        "ground_truth": "Around 80% of accusative and locative errors involved learners incorrectly using the nominative instead of the expected form."
+    },
+    {
+        "question": "What was the most common pronunciation error observed in the learner corpus?",
+        "ground_truth": "The most common error concerned the substitution of the Polish phoneme /w/ (spelled ł) with /l/, particularly in the word szkoły /ʂkɔwɨ/, which was frequently realized as skola /skɔla/ or similar forms, made by 32 learners across all language groups."
+    },
+    {
+        "question": "What total number of pronunciation error examples were analyzed?",
+        "ground_truth": "A total of 310 pronunciation error examples were analyzed."
+    },
+    {
+        "question": "What challenges do Polish retroflex consonants present for learners?",
+        "ground_truth": "Learners have difficulty distinguishing between retroflex and alveolar fricatives, often replacing /ʂ/ with /s/ (as in szpital becoming spita) and /t͡ʂ/ with /ʂ/ (as in cztery becoming sztere)."
+    },
+    {
+        "question": "What specific pronunciation challenge was noted among Italian learners?",
+        "ground_truth": "Italian learners tended to replace the nasal vowel /ɔ̃w̃/ in niską /ɲiskɔ̃w̃/ with the sequence /ɔn/, producing forms such as niskon, illustrating the difficulty of acquiring nasal vowels absent from their native phonological system."
+    },
+    {
+        "question": "What were the global WER and CER results for Whisper on Polish interlanguage?",
+        "ground_truth": "The average WER reached 75.4% and the CER was 46.4% for Polish interlanguage transcription."
+    },
+    {
+        "question": "What were the median WER and CER scores for Whisper on Polish interlanguage?",
+        "ground_truth": "The median WER was 50% and the median CER was 22.2%."
+    },
+    {
+        "question": "How did Whisper perform on native Polish speech compared to interlanguage?",
+        "ground_truth": "Evaluation on native Polish speech revealed substantially lower error rates, with a WER of 13.74% and a CER of 6.44%, compared to 75.4% WER and 46.4% CER for interlanguage."
+    },
+    {
+        "question": "What percentage of pronunciation-related interlanguage words were identically transcribed by Whisper?",
+        "ground_truth": "Within the pronunciation-related interlanguage subset, 72 words (10.88%) were transcribed identically by Whisper."
+    },
+    {
+        "question": "What percentage of pronunciation-related interlanguage words were overcorrected by Whisper?",
+        "ground_truth": "The majority of words (57.1%) were overcorrected, with 202 cases (30.51%) being correct in context and 176 cases (26.59%) being contextually inappropriate despite being valid Polish words."
+    },
+    {
+        "question": "What were the categories used to classify Whisper's outputs for pronunciation-related errors?",
+        "ground_truth": "The categories were:\n1. Identical reproduction (10.88%)\n2. Overcorrection - correct in context (30.51%)\n3. Overcorrection - incorrect in context (26.59%)\n4. Hallucination - word invented by Whisper (16.31%)\n5. Omission (15.71%)"
+    },
+    {
+        "question": "What percentage of declension-related interlanguage words were faithfully reproduced by Whisper?",
+        "ground_truth": "In 42.10% of declension-related cases (221 examples), Whisper faithfully reproduced learners' errors."
+    },
+    {
+        "question": "How did Whisper's faithful reproduction rate differ between pronunciation and declension errors?",
+        "ground_truth": "The faithful reproduction rate for declension errors (42.10%) was notably higher than that observed for pronunciation errors (10.88%), suggesting Whisper is more suited to detecting systematic grammatical errors than phonetic inaccuracies."
+    },
+    {
+        "question": "What were the categories used to classify Whisper's outputs for declension-related errors?",
+        "ground_truth": "The categories were:\n1. Faithful reproduction (42.10%)\n2. Overcorrection (21.71%)\n3. Not transcribed (8.19%)\n4. Unknown (7.43%)\n5. Invented form (20.57%)"
+    },
+    {
+        "question": "What is the WEPR metric mentioned in the thesis?",
+        "ground_truth": "WEPR stands for Word-Based Error Preservation Rate, a metric proposed by Michot et al. (2024) to measure the extent to which ASR systems maintain learner errors instead of automatically correcting them."
+    },
+    {
+        "question": "What did El Ayari and Li (2024) find when evaluating Whisper on French L2 learner corpus?",
+        "ground_truth": "El Ayari and Li (2024) found that although Whisper achieved relatively good WER and CER scores on advanced learners, it often hyper-normalized learner speech by correcting errors, introducing hallucinations, or omitting disfluencies such as repetitions and pauses."
+    },
+    {
+        "question": "What early CAPT system was developed specifically for German learners of Polish?",
+        "ground_truth": "AzAR was an early Computer-Assisted Pronunciation Training system developed specifically for German learners, combining HMM-based ASR with error patterns typical of L2 Polish (Wagner, 2010)."
+    },
+    {
+        "question": "What is the EURONOUNCE corpus?",
+        "ground_truth": "EURONOUNCE is a corpus containing non-native Polish speech that could be used for fine-tuning ASR models on learner-specific data (Cylwik et al., 2009)."
+    },
+    {
+        "question": "Why is overcorrection by ASR systems problematic for interlanguage research?",
+        "ground_truth": "Overcorrection is problematic because it obscures the learner's original production, and deviations from the target norm are precisely the phenomena under investigation in second language acquisition research."
+    },
+    {
+        "question": "What suggestion is made for future improvement of Whisper for interlanguage transcription?",
+        "ground_truth": "One promising direction is fine-tuning Whisper using a dedicated interlanguage corpus, training the system to recognize and transcribe interlanguage forms rather than correcting them into standard Polish."
+    },
+    {
+        "question": "What visualization tool was developed as part of this thesis?",
+        "ground_truth": "An interactive HTML platform was developed to facilitate the analysis of learners' pronunciation deviations, allowing users to filter identical correct-erroneous phoneme pairs and switch between standard IPA representations."
+    },
+    {
+        "question": "What is the role of the Epitran library in this study?",
+        "ground_truth": "The Epitran library was used to convert correct and erroneous word forms into their phonetic (IPA) representations for fine-grained analysis of pronunciation patterns and errors across learners."
+    },
+    {
+        "question": "Which learner group showed the highest CER scores according to the analysis?",
+        "ground_truth": "Italian and British learners showed the highest CERs (above 60%), while Dutch learners achieved the lowest (27%), likely due to clearer articulation."
+    },
+    {
+        "question": "What does the thesis conclude about the relationship between case-related errors and learners' native languages?",
+        "ground_truth": "The thesis concludes that case-related errors are not strongly dependent on the learners' native language and instead reflect universal developmental patterns and the inherent complexity of the Polish case system."
+    },
+    {
+        "question": "What conclusions does the thesis draw about pronunciation errors and native language influence?",
+        "ground_truth": "While specific realizations vary across learners' native languages, clear tendencies can be observed for different language groups, suggesting that learners often substitute unfamiliar Polish sounds with more familiar ones from their L1."
+    },
+    {
+        "question": "What were the most frequently required grammatical cases in the Route Direction task?",
+        "ground_truth": "The most frequently required cases were the genitive (used for possession and after prepositions like obok) and instrumental (used when describing movement along a path and after the preposition za)."
+    },
+    {
+        "question": "What challenge does the Polish case system pose for spaCy's automatic analysis?",
+        "ground_truth": "The Polish case system is highly complex because a single inflected form may correspond to multiple cases, and accurately identifying the correct case often requires considering the broader syntactic context of the word within the sentence."
+    },
+    {
+        "question": "What percentage of interlanguage words in the pronunciation subcorpus were invented by Whisper?",
+        "ground_truth": "Whisper produced entirely new words (hallucinations) in 108 cases, representing 16.31% of the pronunciation-related interlanguage corpus."
+    },
+    {
+        "question": "How many non-Polish transcriptions were generated by Whisper due to hallucinations?",
+        "ground_truth": "Out of 89 examples, 15 were generated in a language other than Polish, caused by the highly distorted nature of the interlanguage and rare instances where learners briefly switched to their native language."
+    },
+    {
+        "question": "What is input in the context of second language acquisition research?",
+        "ground_truth": "In second language acquisition research, input refers to the language learners are exposed to in the target language, which provides the primary source of linguistic data for developing their interlanguage system."
+    },
+    {
+        "question": "What limitation was found with using langdetect for identifying non-Polish words in the learner corpus?",
+        "ground_truth": "The automatic language detection method was unreliable because many simplified interlanguage words were incorrectly classified as belonging to other languages, as they were deformed attempts at Polish words rather than actual foreign language words."
+    },
+    {
+        "question": "What is described as a key question in designing an ASR system for interlanguage?",
+        "ground_truth": "A key question is whether the system should be tailored to learners of a specific native language or whether a more general model would suffice, since speakers of different native languages often exhibit consistent error patterns."
+    },
+    {
+        "question": "What dual-model system is proposed for future language learning applications?",
+        "ground_truth": "A dual-model system is proposed where one model faithfully reproduces the learner's interlanguage (showing exactly what the learner said) while a second model provides the corrected standard version, allowing learners to compare their productions with target forms."
+    },
+    {
+        "question": "What is the significance of the 42% faithful reproduction rate for declension errors?",
+        "ground_truth": "While the 42% faithful reproduction rate for declension errors is notably higher than for pronunciation errors (10.88%), it is still considered insufficient, indicating that improvements are needed to better capture case-related deviations."
+    }
+]

@@ -1,24 +1,28 @@
-# RAG-Thesis-Chatbot
+# 📝 RAG-Thesis-Chatbot
 
 This repository contains a Retrieval-Augmented Generation (RAG) project — an interactive question-answering chatbot answering questions about my master thesis:
 
 > Performance Evaluation of Tools for Automatic Processing of Polish L2 Interlanguage
 
-### Project Overview – What Is Implemented So Far?
+The goal of this project is to preprocess a LaTeX thesis, convert it into a clean, LLM-friendly format, build a RAG system with vector embeddings, and evaluate its performance.
 
-At this stage, the project includes:
-- `prepare_rag_source.py` that takes the raw LaTeX thesis and prepares it for use in a RAG pipeline.
-- `main.py` with:
-  - document chunking,
-  - vectorization and retrieval,
-  - LLM answer generation.
+### 📌 Project Overview – What Is Implemented
 
-**Next steps:**
-- adding a proper source citing from `biblio.bib`,
-- a detailed program evaluation,
-- a web UI for interactive QA.
+The project is organized into 3 stages:
 
-### Tools and Components Used
+**1. Thesis Preprocessing**
+- LaTeX cleanup and conversion to Markdown(`prepare_rag_source.py`)
+- Corpus Noise Cleaning (`clean_noise.py`)
+
+**2. RAG Pipeline (`main.py`)**
+
+**3. Evaluation:**
+- Question and Answer Generation (`generate_questions.py`)
+- Evaluation (`evaluation.py`)
+- Visualization(`evaluation_visualization.py`)
+
+
+### 🔧 Tools and Components Used
 
 **LaTeX Preprocessing:**
 - Python (custom macro replacement, TIPA → IPA conversion)
@@ -32,9 +36,11 @@ At this stage, the project includes:
 
 **Retrieval and Ranking:** Chroma similarity search
 
-**Generation (Answering Questions):** OpenAI LLM (`gpt-4o-mini`)
+**Generation (Answering Questions):** OpenAI LLM (`gpt-4o-mini`), Anthropic Claude LLM (`claude-opus-4-5-20251101`)
 
-## Part 1: Preparing Thesis Documents for Retrieval-Augmented Generation
+**Evaluation:** RAGAs
+
+## Part 1: Preparing Thesis Documents for RAG
 
 The chatbot relies on RAG to ground its answers in the content of the thesis. Before this can happen, the thesis must be converted into a clean, LLM-friendly format.
 
@@ -42,75 +48,136 @@ The chatbot relies on RAG to ground its answers in the content of the thesis. Be
 
 The thesis includes a phonetic analysis of Polish L2 interlanguage, which contains extensive IPA (International Phonetic Alphabet) notation. These IPA symbols were originally written in LaTeX using the TIPA package.
 
-However, most document-conversion tools cannot interpret TIPA macros, leading to broken Unicode characters or empty placeholders in the output.
-
-Since high-quality text representation is crucial for RAG, the TIPA macros must be manually expanded and mapped to proper Unicode IPA symbols before conversion.
+However, document-conversion tools cannot interpret these macros directly, leading to broken Unicode characters or empty placeholders in the output. The preprocessing pipeline converts macros into proper Unicode IPA symbols and removes noise.
 
 ### `prepare_rag_source.py`
 
-The script performs a full preprocessing pipeline to ensure the thesis is clean, Unicode-correct, and ready for ingestion by a RAG system.
+This script performs:
 
-1. External macro replacement
-
+**1. External macro replacement**
 Expands custom LaTeX macros into plain Unicode characters.
 
-2. TIPA phonetic transcription conversion
-
+**2. TIPA phonetic transcription conversion**
 Extracts `\textipa{...}` blocks and converts TIPA to clean IPA.
 
-3. LaTeX cleanup
+**3. Pandoc conversion to Markdown**
+Generates `main_with_noise.md` and places the file into `data/intermediate/`.
 
-Produces a simplified intermediate `.tex` file without custom commands.
+* Copies bibliography (`biblio.bib`) to `data/final/`.
 
-4. Pandoc conversion to Markdown
+## Part 2: Cleaning Noise from Markdown
 
-Generates `main.md` (LLM-friendly, UTF-8 clean, citations resolved) and places the file into `data/final/`.
+### `clean_noise.py`
 
-5. Clean RAG-ready output
+The script removes extraneous elements that may interfere with embeddings and LLM processing:
+- Curly-brace blocks `({...})`
+- Internal Markdown links
+- Images with attributes
+- Parenthesized references
+- LaTeX math blocks `($$ ... $$)`
+- Footnotes
+- LaTeX figure/app labels `(\[fig:...\])`
 
-The final stage produces two files in `data/final/` that are ready to be consumed directly by a RAG pipeline:
-- `biblio.bib` — copied unchanged from the original source.
-- `main.md` — the fully cleaned Markdown version of the thesis.
+The script produces a clean, RAG-ready Markdown file (`main.md`) in `data/final/` and saves a noise inventory JSON for reference.
 
-## Part 2: Chunking, Vectorization and Question Answering
 
-Once the thesis has been preprocessed and exported as `main.md` + `biblio.bib`, the next step is to split the document into meaningful chunks, prepare a vector database for RAG and generate answers using an LLM.
+## Part 3: Chunking, Vectorization and Question Answering
 
 ### `main.py`
 
-This script implements the RAG pipeline:
+This script implements the full RAG pipeline:
 
-1. Load Corpus:
+**1. Markdown-based Document Splitting:**
+Uses header hierarchy (`#`, `##`, `###`, `####`) to create structured sections.
 
-Reads `main.md` and `biblio.bib` from `data/final/` and concatenates them.
+**2. Recursive Chunking:**
+Chunks each section into smaller pieces (2000 characters, 200 overlap).
 
-2. Markdown-based Document Splitting:
+**3. Header metadata boosting:**
+Header paths are prepended to each chunk to improve embedding relevance.
 
-Uses header hierarchy (#, ##, ###, ####) to create structured sections.
-
-Metadata captures the full header path for context relevance.
-
-3. Recursive Chunking:
-
-Chunks each section into smaller pieces (1800 characters, 200 overlap).
-
-Header metadata is prepended to each chunk (and duplicated) to increase its weight during embedding and maintain strong context relevance in academic content.
-
-4. Vector Store Creation:
-
+**4. Vector Store Creation:**
 Creates a Chroma vectorstore using OpenAI embeddings.
 
-Stores chunk embeddings for fast similarity search.
+**5. RAG-based Question Answering:**
+- User provides a question via CLI.
+- The system performs similarity search in ChromaDB to retrieve top-k chunks.
+- Concatenates retrieved context and passes it to OpenAI LLM (`gpt-4o-mini`) for answer generation.
+- Citations are automatically replaced with (Author, Year) format based on `.bib` entries.
+- Returns answer.
 
-5. RAG-based Question Answering:
+## Part 4: Evaluation
 
-Accepts a user question via CLI.
+### `generate_questions.py` 
 
-Retrieves the most relevant chunks using similarity search.
+The script produces high-level evaluation questions using Claude LLM:
 
-Feeds concatenated context to OpenAI LLM (`gpt-4o-mini`) for generating answers.
+First, produces approximately 15 high-level, conceptual questions with complete answers based on the thesis. These questions focus on:
+- Research goals & motivation
+- Theoretical background
+- Methodology
+- Data used
+- Findings & conclusions
+- Limitations & future work
 
-#### Folder organization
+Next, using the same script, a second set of approximately 50 shorter and more detailed questions is generated. These questions target more specific aspects of the thesis and vary in length and level of detail.
+
+All outputs are saved in JSON format.
+
+Finally, a final evaluation dataset is created by combining different types of questions and answers (varying in length, specificity, and level of abstraction), which is then used for systematic RAG evaluation.
+
+### `evaluation.py`
+
+- Loads evaluation questions and ground truths.
+- Runs each question through the RAG pipeline.
+- Collects responses and contexts.
+
+Evaluates the dataset using metrics:
+- **faithfulness** – correctness relative to the context,
+- **answer_relevancy** – relevance of the answer to the question,
+- **context_precision** – fraction of retrieved context that is relevant,
+- **context_recall** – fraction of relevant context retrieved.
+
+### `evaluation_visualization.py`
+
+Generates boxplots for all metrics and line plots showing metric scores per question.
+
+## 📊 Evaluation Results
+
+The RAG system was evaluated on a set of 80 questions. The first 15 questions were more open-ended and required more elaborate, descriptive answers, while the remaining questions were more concise and specific, often targeting concrete details from the thesis.
+
+![RAG evaluation boxplot](img/ragas_boxplot.png)
+
+A small number of failure cases (0.0 scores) were observed, typically corresponding to answers stating that the question was unrelated to the thesis context. These cases likely stem from retrieval issues during context generation and will be addressed in future work.
+
+### Faithfulness
+
+The model achieves consistently high faithfulness, suggesting that generated answers are largely grounded in the retrieved context and hallucinations are rare.
+
+![Faithfulness scores](img/faithfulness.png)
+
+### Answer Relevancy
+
+Answer relevancy is generally high, indicating that the generated answers effectively address the questions.
+
+![Answer relevancy scores](img/answer_relevancy.png)
+
+### Context Precision
+
+The retrieval component shows relatively high context precision, meaning that most retrieved chunks are relevant to the generated answers. Occasional drops in precision are expected due to the use of relatively large chunks (2000 tokens) and a retrieval setting of k = 4, which was a deliberate design choice to reduce the risk of missing important information.
+
+![Context precision scores](img/context_precision.png)
+
+### Context Recall
+
+Similarly, context recall is high for most questions, indicating that the retriever usually provides sufficient information to answer the question. Lower recall values occur for complex, multi-aspect questions (at the beginning), where capturing all relevant details is inherently more challenging.
+
+![Context recall scores](img/context_recall.png)
+
+
+
+
+#### 🗂️ Folder organization
 
 ```
 RAG_chatQA/
@@ -118,18 +185,21 @@ RAG_chatQA/
 ├─ data/
 │  │
 │  ├─ raw/           # Original LaTeX thesis and bibliography (modele.tex, page-de-garde.tex, documentation.tex, biblio.bib)
-│  ├─ intermediate/  # Cleaned intermediate LaTeX file with IPA macros replaced (cleaned_ipa.tex)
+│  ├─ intermediate/  # Cleaned intermediate LaTeX file with IPA macros replaced (cleaned_ipa.tex) and main_with_noise.md
 │  └─ final/         # Final markdown files ready for RAG (main.md, biblio.bib)
 │
 ├─ chroma/           # Chroma vectorstore directory
 │
 ├─ scr/
-│  │
-│  ├─ prepare_rag_source.py/ # LaTeX preprocessing and conversion
-└─ └─ main.py/       # RAG pipeline: chunking, vectorstore, question answering
+│  ├─ prepare_rag_source.py  # Preprocessing LaTeX → Markdown
+│  ├─ clean_noise.py          # Noise removal
+│  ├─ main.py                 # RAG pipeline (chunking, vectorstore, QA)
+│  ├─ generate_questions.py   # Automatic QA generation
+│  ├─ evaluation.py           # RAG evaluation
+│  └─ evaluation_visualization.py  # Visualization of metrics
 ```
 
-### Installation
+### ⚙️ Installation
 
 1. Clone the repository:
 
@@ -156,22 +226,44 @@ sudo apt install pandoc
 export OPENAI_API_KEY="your_api_key_here"
 ```
 
+5. Set your Anthropic API key (for generating evaluation questions):
+
+
+```
+export ANTHROPIC_API="your_api_key_here"
+```
+
 Alternatively, if the variable is not set, the script will ask you to enter the key interactively at runtime.
 
-### Usage
+### ▶️ Usage
 
 1. Prepare thesis source:
 
 ```
 cd scr
 python prepare_rag_source.py
+python clean_noise.py
 ```
 
-2. Ask a question:
+2. Run RAG QA:
 
 ```
 python main.py "What are the main objectives of the thesis?"
 ```
+
+3. Generate evaluation questions
+
+```
+python generate_questions.py
+```
+
+4. Evaluate RAG
+
+```
+python evaluation.py
+python evaluation_visualization.py
+```
+
 
 ### ⚠️ About the Data ⚠️
 
@@ -179,4 +271,4 @@ This repository does not include my full thesis as it is not **yet** published, 
 
 The `data/` directory will be uploaded as soon as the thesis is published.
 
-
+### 🚀 Next step: a web UI for interactive QA.

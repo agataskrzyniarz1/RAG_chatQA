@@ -65,11 +65,10 @@ Generates `main_with_noise.md` and places the file into `data/intermediate/`.
 
 * Copies bibliography (`biblio.bib`) to `data/final/`.
 
-## Part 2: Cleaning Noise from Markdown
 
 ### `clean_noise.py`
 
-The script removes extraneous elements that may interfere with embeddings and LLM processing:
+The script cleans markdown noise – removes extraneous elements that may interfere with embeddings and LLM processing:
 - Curly-brace blocks `({...})`
 - Internal Markdown links
 - Images with attributes
@@ -81,7 +80,7 @@ The script removes extraneous elements that may interfere with embeddings and LL
 The script produces a clean, RAG-ready Markdown file (`main.md`) in `data/final/` and saves a noise inventory JSON for reference.
 
 
-## Part 3: Chunking, Vectorization and Question Answering
+## Part 2: Chunking, Vectorization and Question Answering
 
 ### `main.py`
 
@@ -106,7 +105,7 @@ Creates a Chroma vectorstore using OpenAI embeddings.
 - Citations are automatically replaced with (Author, Year) format based on `.bib` entries.
 - Returns answer.
 
-## Part 4: Evaluation
+## Part 3: Evaluation
 
 ### `generate_questions.py` 
 

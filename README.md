@@ -195,7 +195,8 @@ RAG_chatQA/
 │  ├─ main.py                 # RAG pipeline (chunking, vectorstore, QA)
 │  ├─ generate_questions.py   # Automatic QA generation
 │  ├─ evaluation.py           # RAG evaluation
-│  └─ evaluation_visualization.py  # Visualization of metrics
+│  ├─ evaluation_visualization.py  # Visualization of metrics
+│  └─ app_streamlit.py        # Streamlit user interface
 ```
 
 ### ⚙️ Installation
@@ -262,12 +263,13 @@ python generate_questions.py
 python evaluation.py
 python evaluation_visualization.py
 ```
-
+5. Run the chatbot
+```
+streamlit run app_streamlit.py
+```
 
 ### ⚠️ About the Data ⚠️
 
 This repository does not include my full thesis as it is not **yet** published, so the raw content is intentionally omitted for copyright reasons.
 
 The `data/` directory will be uploaded as soon as the thesis is published.
-
-### 🚀 Next step: a web UI for interactive QA.

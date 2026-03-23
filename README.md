@@ -6,6 +6,11 @@ This repository contains a Retrieval-Augmented Generation (RAG) project — an i
 
 The goal of this project is to preprocess a LaTeX thesis, convert it into a clean, LLM-friendly format, build a RAG system with vector embeddings, and evaluate its performance.
 
+
+<p align="center">
+  <img src="img/demo.gif" width="550">
+</p>
+
 ### 📌 Project Overview – What Is Implemented
 
 The project is organized into 3 stages:
